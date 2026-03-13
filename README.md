@@ -9,7 +9,7 @@
 | :--- | :--- | 
 | **Abdullah Chaudhary** | 2023-EE-168 | 
 | **Talha Ayaaz** | 2023-EE-174 | 
-| **Maryam Hania** | 2023-EE-10 | 
+| **Maryam Hania** | 2023-EE-104 | 
 | **Fatima Irfan** | 2023-EE-155 |
 
 ---
