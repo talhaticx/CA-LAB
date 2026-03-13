@@ -1,6 +1,6 @@
 # EE-475L: Computer Architecture Lab
 **University of Engineering and Technology (UET), Lahore**  
-**Instructor:** [Teacher's Name]
+
 
 ---
 
