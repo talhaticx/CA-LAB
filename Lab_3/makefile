@@ -8,8 +8,8 @@ VVP      = vvp
 GTKWAVE  = gtkwave
 
 # Directories
-RTL_DIR   = rtl
-TB_DIR    = tb
+RTL_DIR   = src
+TB_DIR    = sim
 BUILD_DIR = build
 INC_DIR   = ../include
 
