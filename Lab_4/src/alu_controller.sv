@@ -1,4 +1,4 @@
-// `include "opcode.vh"
+`include "opcode.vh"
 
 module alu_controller (
     input  logic [1:0] alu_op,

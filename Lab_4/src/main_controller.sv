@@ -1,4 +1,4 @@
-// `include "opcode.vh"
+`include "opcode.vh"
 
 module main_controller (
     input  logic [6:0] opcode,
