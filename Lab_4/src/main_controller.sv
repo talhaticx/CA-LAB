@@ -25,7 +25,7 @@ module main_controller (
                 alu_op    = 2'b11;
             end
             // Note: Loads/Stores/Branches will be added later in Part 2 of Lab 4
-            default: 
+            default: ;
         endcase
     end
 endmodule
