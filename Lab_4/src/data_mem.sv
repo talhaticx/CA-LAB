@@ -11,7 +11,7 @@ module data_mem
     output logic [31:0] read_data
 );
 
-    logic [31:0] ram [0:255];
+    logic [31:0] ram [0:255] = '{default: '0};
 
     // Synchronous Write
     always_ff @(posedge clk) begin

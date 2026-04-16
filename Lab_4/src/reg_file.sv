@@ -22,7 +22,7 @@ module reg_file
 );
 
     // Array of 32 registers, each 32 bits wide
-    logic [DATA_WIDTH-1:0] rf [31:0];
+    logic [DATA_WIDTH-1:0] rf [31:0] = '{default: '0};
 
     /* * Synchronous Write 
      * Note: Register x0 cannot be overwritten.

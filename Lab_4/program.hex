@@ -1,4 +1,11 @@
-00a00093
-01400113
-002081b3
-00302023
+// program.hex
+// RISC-V 32I Machine Code (Hex)
+
+00f00093    // addi x1, x0, 15  (Load 15 into x1)
+00a00113    // addi x2, x0, 10  (Load 10 into x2)
+002081b3    // add  x3, x1, x2  (x3 = 15 + 10 = 25)
+40208233    // sub  x4, x1, x2  (x4 = 15 - 10 = 5)
+0020f2b3    // and  x5, x1, x2  (x5 = 15 & 10 = 10)
+0020e333    // or   x6, x1, x2  (x6 = 15 | 10 = 15)
+ffb08393    // addi x7, x1, -5  (x7 = 15 - 5 = 10, tests sign extension)
+00208033    // add  x0, x1, x2  (x0 = 15 + 10, tests zero register protection)
