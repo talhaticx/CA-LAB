@@ -8,7 +8,7 @@ module instr_mem
     output logic [31:0] instr
 );
 
-    logic [31:0] memory [0:255]; // 256 words of memory
+    logic [31:0] memory [1024]; // 1024 words of memory
 
     // // Load machine code from a hex file (created during assembly)
     // initial begin
@@ -17,6 +17,6 @@ module instr_mem
 
     // Asynchronous read: Instruction is available immediately
     // Note: PC is byte-addressed, but memory is word-aligned (addr >> 2)
-    assign instr = memory[addr[31:2]];
+    assign instr = memory[addr[11:2]];
 
 endmodule

@@ -3,7 +3,7 @@
 // Main Controller Module 
 // =================================================================================
 
-`include "opcode.vh"
+`include "../include/opcode.vh"
 
 module main_controller (
     input  logic [6:0] opcode,
