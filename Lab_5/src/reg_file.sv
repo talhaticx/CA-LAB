@@ -22,21 +22,21 @@ module reg_file
 );
 
     // Array of 32 registers, each 32 bits wide
-    logic [DATA_WIDTH-1:0] rf [31:0] = '{default: '0};
+    logic [DATA_WIDTH-1:0] Registers [31:0] = '{default: '0};
 
     /* * Synchronous Write 
      * Note: Register x0 cannot be overwritten.
      */
     always_ff @(posedge clk) begin
         if (reg_write && (a3 != 5'b00000)) begin
-            rf[a3] <= wd3;
+            Registers[a3] <= wd3;
         end
     end
 
     /* * Asynchronous Read 
      * Register x0 always returns 0.
      */
-    assign rd1 = (a1 != 5'b00000) ? rf[a1] : {DATA_WIDTH{1'b0}};
-    assign rd2 = (a2 != 5'b00000) ? rf[a2] : {DATA_WIDTH{1'b0}};
+    assign rd1 = (a1 != 5'b00000) ? Registers[a1] : {DATA_WIDTH{1'b0}};
+    assign rd2 = (a2 != 5'b00000) ? Registers[a2] : {DATA_WIDTH{1'b0}};
 
 endmodule

@@ -11,16 +11,17 @@ module data_mem
     output logic [31:0] read_data
 );
 
-    logic [31:0] ram [0:255] = '{default: '0};
+    logic [31:0] memory [0:1024] = '{default: '0};
 
     // Synchronous Write
     always_ff @(posedge clk) begin
         if (mem_write) begin
-            ram[addr[31:2]] <= write_data;
+            memory[addr[31:2]] <= write_data;
         end
     end
 
     // Asynchronous Read
-    assign read_data = ram[addr[31:2]];
+    assign read_data = memory[addr[31:2]];
 
+    
 endmodule
