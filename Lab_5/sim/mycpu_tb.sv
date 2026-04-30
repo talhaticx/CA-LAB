@@ -98,10 +98,12 @@ module cpu_tb();
     endtask
 
     task reset_cpu;
-        @(posedge clk);
+    begin
         rst = 1;
+        @(posedge clk);
         #30;
         rst = 0;
+    end
     endtask
 
     task init_rf;
@@ -189,6 +191,8 @@ module cpu_tb();
     endtask
 
     initial begin
+        $dumpfile("dump.vcd");
+        $dumpvars(0, cpu);
         rst = 0;
 
         // Reset the CPU
