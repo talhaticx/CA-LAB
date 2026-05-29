@@ -1,3 +1,5 @@
+// Author: Maryam Hania
+// Testbench for the 3-stage pipelined processor
 `timescale 1ns/1ps
 
 module tb_pipelined;
