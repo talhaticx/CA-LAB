@@ -72,4 +72,15 @@
 // ***** Special instructions *****
 `define INST_NOP        {12'd0, 5'd0, `FNC_ADD_SUB, 5'd0, `OPC_ARI_ITYPE}
 
+//###################################################################################
+//#                             ### CUSTOM INSTRS ###
+//###################################################################################
+
+// Custom instructions
+`define OPC_CUSTOM_0    7'b0001011
+`define FNC7_BITREV     7'b0000001
+`define FNC3_BITREV     3'b000
+
+`define FNC7_CABS       7'b0000010
+
 `endif //OPCODE

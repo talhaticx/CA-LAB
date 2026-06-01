@@ -16,6 +16,10 @@ module alu_controller (
                     `FNC_ADD_SUB: begin
                         if (alu_op == 2'b10 && func7 == `FNC7_1)
                             alu_operation = 4'b0110; // SUB
+                        else if (alu_op == 2'b10 && func7 == `FNC7_BITREV)
+                            alu_operation = 4'b1010; // BITREV 
+                        else if (alu_op == 2'b10 && func7 == `FNC7_CABS)
+                            alu_operation = 4'b1011; // CABS (New)
                         else
                             alu_operation = 4'b0010; // ADD
                     end

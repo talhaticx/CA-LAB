@@ -80,6 +80,14 @@ module main_controller (
                 result_src = 2'b11; // Route immediate to register
             end
 
+            // Custom Instructions
+            `OPC_CUSTOM_0: begin
+                reg_write  = 1'b1;  // Write result to RD
+                result_src = 2'b00; // Route ALU result to register
+                alu_src    = 1'b0;  // Use Register (RS1)
+                alu_op     = 2'b10; // Treat as R-type for ALU decoding
+            end
+
             default: ;
         endcase
     end

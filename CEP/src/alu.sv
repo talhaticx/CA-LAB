@@ -22,7 +22,8 @@ module alu (
                                 ? 32'd1 : 32'd0;                          // SLT
             4'b1001: result = (operand_a < operand_b) 
                                 ? 32'd1 : 32'd0;                          // SLTU
-
+            4'b1010: result = {<<{operand_a}};                            // BITREV (Custom operation)
+            4'b1011: result = operand_a[31] ? (~operand_a + 1'b1) : operand_a; // CABS
             default: result = 32'd0;
 
         endcase
