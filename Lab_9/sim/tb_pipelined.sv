@@ -1,31 +1,41 @@
-// Author: Maryam Hania
-// Testbench for the 3-stage pipelined processor
-`timescale 1ns/1ps
+`timescale 1ns/1ns
 
-module tb_pipelined;
+module tb_pipelined();
+
     logic clk;
     logic rst;
 
-    // Instantiate your 3-stage pipelined top module
-    pipelined_3stage dut (
+    // Clock Generation (50MHz -> 20ns period)
+    initial begin
+        clk = 0;
+        forever #10 clk = ~clk;
+    end
+
+    // Instantiate the 3-Stage Pipeline Processor
+    three_stage_pipeline dut (
         .clk(clk),
         .rst(rst)
     );
 
-    // Generate a clock signal (toggles every 10ns -> 20ns clock cycle)
-    always #10 clk = ~clk;
-
     initial begin
-        // Initialize signals
-        clk = 0;
+        // Setup waveform dumping
+        $dumpfile("dump.vcd");
+        $dumpvars(0, tb_pipelined);
+
+        // ==========================================
+        // 1. DRIVE RESET IMMEDIATELY AT TIME 0
+        // Absolutely no `#` delays before this line!
+        // ==========================================
         rst = 1;
         
-        // Hold reset for 25ns
-        #25;
-        rst = 0; 
+        // 2. Hold reset for a couple of cycles, then release
+        repeat(2) @(negedge clk); 
+        rst = 0;
+
+        // 3. Run the simulation for enough time to see results
+        #270; 
         
-        // Let the simulation run for 300ns, then stop
-        #300;
-        $stop;
+        $finish;
     end
+
 endmodule

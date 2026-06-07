@@ -4,7 +4,7 @@
 // Stages: 1. Fetch (F) | 2. Decode-Execute (DX) | 3. Memory-Writeback (MW)
 // =================================================================================
 
-module pipelined_3stage (
+module three_stage_pipeline (
     input logic clk,
     input logic rst
 );

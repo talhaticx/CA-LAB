@@ -12,7 +12,7 @@ module instr_mem
 
     // // Load machine code from a hex file (created during assembly)
      initial begin
-         $readmemh("C:/Users/DELL/Desktop/CA/CA-LAB/Lab_9/sim/program.hex", memory);
+         $readmemh("../sim/with_hazard.hex", memory);
      end
 
     // Asynchronous read: Instruction is available immediately

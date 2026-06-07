@@ -2,26 +2,32 @@
 // Author: Fatima Irfan Sohail
 // 3-Stage Pipelined Processor Top Module
 // Stages: 1. Fetch (F) | 2. Decode-Execute (DX) | 3. Memory-Writeback (MW)
+// LAB 9: Hazard Unit, Forwarding, and Stalling Added
 // =================================================================================
 
-module pipelined_3stage (
+module three_stage_pipeline (
     input logic clk,
     input logic rst
 );
+    // Hazard Unit Control Signals
+    logic forward_a_DX, forward_b_DX, stall_F, flush_DX;
 
     // =============================================================================
     // 1. FETCH STAGE (F)
     // =============================================================================
     logic [31:0] pc_F, pc_next_F, pc_plus4_F, instr_F;
-    logic pc_src_DX;       // Comes from DX stage branch logic
-    logic [31:0] pc_branch_DX; // Comes from DX stage branch logic
+    logic pc_src_DX;       
+    logic [31:0] pc_branch_DX;
 
     // Next PC selection (Branch/Jump resolved in DX stage)
     assign pc_next_F = pc_src_DX ? pc_branch_DX : pc_plus4_F;
 
     pc pc_unit (
-        .clk(clk), .rst(rst),
-        .pc_next(pc_next_F), .pc_out(pc_F)
+        .clk(clk), 
+        .rst(rst),
+        .en(~stall_F),      // STALL LOGIC: Freeze PC if Load-Use hazard detected
+        .pc_next(pc_next_F), 
+        .pc_out(pc_F)
     );
 
     assign pc_plus4_F = pc_F + 32'd4;
@@ -30,18 +36,19 @@ module pipelined_3stage (
         .addr(pc_F), .instr(instr_F)
     );
 
-
     // =============================================================================
     // PIPELINE REGISTER 1: FETCH -> DECODE/EXECUTE (F_DX)
     // =============================================================================
     logic [31:0] instr_DX, pc_DX, pc_plus4_DX;
 
     always_ff @(posedge clk or posedge rst) begin
-        if (rst) begin
-            instr_DX    <= 32'b0;
+        if (rst || flush_DX) begin
+            // FLUSH LOGIC: Insert NOP (addi x0, x0, 0 = 32'h0000_0013)
+            instr_DX    <= 32'h0000_0013; 
             pc_DX       <= 32'b0;
             pc_plus4_DX <= 32'b0;
-        end else begin
+        end else if (!stall_F) begin
+            // Normal operation (If stalling, we simply hold the NOP injected by flush)
             instr_DX    <= instr_F;
             pc_DX       <= pc_F;
             pc_plus4_DX <= pc_plus4_F;
@@ -57,6 +64,9 @@ module pipelined_3stage (
     logic [1:0]  alu_op_main_DX, result_src_DX;
     logic        reg_write_en_DX, alu_src_sel_DX, alu_zero_DX;
     logic        mem_write_DX, branch_DX, jump_DX, take_branch_DX;
+    
+    // Forwarded ALU inputs
+    logic [31:0] forwarded_a_DX, forwarded_b_DX;
 
     // These come from the MW stage to write back to the register file
     logic        reg_write_en_MW;
@@ -79,10 +89,9 @@ module pipelined_3stage (
         .immediate(imm_ext_DX)
     );
 
-    // Register File: Reads happen in DX, but Writes come from the MW stage!
     reg_file r_file (
         .clk(clk),
-        .reg_write(reg_write_en_MW), // Control signal propagated from MW
+        .reg_write(reg_write_en_MW), 
         .a1(instr_DX[19:15]),        // rs1 (Decode)
         .a2(instr_DX[24:20]),        // rs2 (Decode)
         .a3(rd_MW),                  // rd (Propagated from MW)
@@ -91,7 +100,29 @@ module pipelined_3stage (
         .rd2(rd2_DX)
     );
 
-    assign operand_b_DX = (alu_src_sel_DX) ? imm_ext_DX : rd2_DX;
+    // ================== HAZARD UNIT ==================
+    hazard_unit h_unit (
+        .rs1_DX(instr_DX[19:15]),
+        .rs2_DX(instr_DX[24:20]),
+        .rs1_F(instr_F[19:15]),
+        .rs2_F(instr_F[24:20]),
+        .rd_DX(instr_DX[11:7]),
+        .rd_MW(rd_MW),
+        .reg_write_en_MW(reg_write_en_MW),
+        .result_src_DX(result_src_DX),
+        .pc_src_DX(pc_src_DX),
+        .forward_a_DX(forward_a_DX),
+        .forward_b_DX(forward_b_DX),
+        .stall_F(stall_F),
+        .flush_DX(flush_DX)
+    );
+
+    // ================== FORWARDING MUXES ==================
+    assign forwarded_a_DX = forward_a_DX ? wd3_final_MW : rd1_DX;
+    assign forwarded_b_DX = forward_b_DX ? wd3_final_MW : rd2_DX;
+    
+    // ALU Operand B Selection (Immediate or Forwarded Reg)
+    assign operand_b_DX = (alu_src_sel_DX) ? imm_ext_DX : forwarded_b_DX;
 
     alu_controller a_ctrl (
         .alu_op(alu_op_main_DX),
@@ -101,16 +132,16 @@ module pipelined_3stage (
     );
 
     alu alu_unit (
-        .operand_a(rd1_DX),
-        .operand_b(operand_b_DX),
+        .operand_a(forwarded_a_DX),    // Uses Forwarded Data
+        .operand_b(operand_b_DX),      // Uses Forwarded Data / Imm
         .alu_operation(alu_ctrl_signal_DX),
         .result(alu_result_DX),
         .zero(alu_zero_DX)
     );
 
     // PC Logic & Branch Evaluation in DX
-    assign pc_branch_DX = pc_DX + imm_ext_DX; 
-    
+    assign pc_branch_DX = pc_DX + imm_ext_DX;
+
     always_comb begin
         case(instr_DX[14:12])
             3'b000: take_branch_DX = alu_zero_DX;  // BEQ
@@ -118,8 +149,8 @@ module pipelined_3stage (
             default: take_branch_DX = 1'b0;
         endcase
     end
+    
     assign pc_src_DX = jump_DX | (branch_DX & take_branch_DX);
-
 
     // =============================================================================
     // PIPELINE REGISTER 2: DECODE/EXECUTE -> MEMORY/WRITEBACK (DX_MW)
@@ -141,13 +172,16 @@ module pipelined_3stage (
             imm_ext_MW      <= 32'b0;
             rd_MW           <= 5'b0;
         end else begin
-            // This ensures control signals propagate correctly through the pipeline
             reg_write_en_MW <= reg_write_en_DX;
             mem_write_MW    <= mem_write_DX;
             result_src_MW   <= result_src_DX;
             
             alu_result_MW   <= alu_result_DX;
-            rd2_MW          <= rd2_DX; // Data to write to memory
+            
+            // CRITICAL FIX: Save the FORWARDED value of rs2, otherwise Store 
+            // operations will write stale data to memory!
+            rd2_MW          <= forwarded_b_DX; 
+            
             pc_plus4_MW     <= pc_plus4_DX;
             imm_ext_MW      <= imm_ext_DX;
             rd_MW           <= instr_DX[11:7]; // Destination register address
@@ -164,7 +198,7 @@ module pipelined_3stage (
         .clk(clk),
         .mem_write(mem_write_MW),
         .addr(alu_result_MW),
-        .write_data(rd2_MW),
+        .write_data(rd2_MW), // Safely uses forwarded data
         .read_data(read_data_MW)
     );
 
