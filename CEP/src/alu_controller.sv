@@ -20,6 +20,8 @@ module alu_controller (
                             alu_operation = 4'b1010; // BITREV 
                         else if (alu_op == 2'b10 && func7 == `FNC7_CABS)
                             alu_operation = 4'b1011; // CABS (New)
+                        else if (alu_op == 2'b10 && func7 == `FNC7_BSWAP)
+                            alu_operation = 4'b1100; // BSWAP (New)
                         else
                             alu_operation = 4'b0010; // ADD
                     end

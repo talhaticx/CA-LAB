@@ -17,6 +17,9 @@ module testbench;
 
     // Test Sequence
     initial begin
+        $dumpfile("dump.vcd");
+        $dumpvars(0, testbench);
+
         // Initialize signals
         clk = 0;
         rst = 1;
@@ -24,6 +27,7 @@ module testbench;
         // Apply reset for one clock cycle
         #10;
         rst = 0;
+        
 
         // Wait for the sorting algorithm to execute
         // A 4-element insertion sort will easily finish within a few hundred cycles.

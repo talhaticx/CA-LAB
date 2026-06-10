@@ -13,12 +13,8 @@ module data_mem
 
     logic [31:0] memory [1024] = '{default: '0};
 
-    // Initialize array: {2, 4, 1, 3}
     initial begin
-        memory[0] = 32'd2;
-        memory[1] = 32'd4;
-        memory[2] = 32'd1;
-        memory[3] = 32'd3;
+        $readmemh("../sim/data.hex", memory);
     end
 
     // Synchronous Write

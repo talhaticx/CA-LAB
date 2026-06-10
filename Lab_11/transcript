@@ -1,0 +1,20 @@
+# vsim -voptargs="+acc" work.testbench -do "add wave -r /*; run -all" 
+# Start time: 16:28:03 on Jun 09,2026
+# Loading sv_std.std
+# Loading work.testbench
+# Loading work.three_stage_pipeline
+# Loading work.pc
+# Loading work.instr_mem
+# Loading work.main_controller
+# Loading work.imm_gen
+# Loading work.reg_file
+# Loading work.hazard_unit
+# Loading work.alu_controller
+# Loading work.alu
+# Loading work.data_mem
+# ** Error: (vsim-3043) Unresolved reference to 'memory_array'.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/dut/d_mem File: src/data_mem.sv Line: 17
+# Error loading design
+# End time: 16:28:04 on Jun 09,2026, Elapsed time: 0:00:01
+# Errors: 1, Warnings: 0
+# Break key hit

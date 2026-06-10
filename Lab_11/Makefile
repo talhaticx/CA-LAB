@@ -1,59 +1,76 @@
-# ==========================================
-# Makefile for RISC-V Pipelined Processor
-# ==========================================
+# =================================================================================
+# RISC-V Pipelined Processor Makefile
+# =================================================================================
 
-# Directories
-SRC_DIR = src
-SIM_DIR = sim
-
-# RISC-V Compiler Settings
-GCC = riscv64-unknown-elf-gcc
-OBJCOPY = riscv64-unknown-elf-objcopy
-CFLAGS = -march=rv32i -mabi=ilp32 -nostdlib -Ttext 0x00000000
-
-# Software Files
-ASM_SRC = $(SIM_DIR)/insertion_sort.s
-ELF_BIN = $(SIM_DIR)/insertion_sort.elf
-HEX_OUT = $(SIM_DIR)/insertion_sort.hex
-
-# QuestaSim Settings
+# Tools
 VLOG = vlog
 VSIM = vsim
-WORK_DIR = work
-TOP_TB = testbench # Replace with your actual testbench module name if different
+GTKWAVE = gtkwave
+
+# SW Toolchain
+PREFIX  = riscv64-unknown-elf-
+AS      = $(PREFIX)gcc
+OBJCOPY = $(PREFIX)objcopy
+AS_FLAGS = -nostdlib -nodefaultlibs -Ttext 0x00000000 -Wl,-e,0
+
+# Directories
+RTL_DIR   = src
+TB_DIR    = sim
+BUILD_DIR = build
+
+# Top module inside the testbench
+TOP_TB = testbench
+
+# Files
+RTL_FILES = ../$(RTL_DIR)/*.sv
+TB_FILES  = ../$(TB_DIR)/testbench.sv
 
 # Default target
-all: help
+all: run
 
-# 1. Compile Assembly to Hex
-hex: $(ASM_SRC)
-	@echo "Compiling RISC-V Assembly..."
-	$(GCC) $(CFLAGS) -o $(ELF_BIN) $(ASM_SRC)
-	$(OBJCOPY) -O verilog $(ELF_BIN) $(HEX_OUT)
-	@echo "Hex file successfully generated: $(HEX_OUT)"
+# =================================================================================
+# Software Assembly Compilation Rules (Sequential Byte Stream Format)
+# =================================================================================
 
-# 2. Compile SystemVerilog RTL and Testbench
-compile:
-	@echo "Creating work library and compiling SystemVerilog files..."
-	vlib $(WORK_DIR)
-	vmap work $(WORK_DIR)
-	$(VLOG) +incdir+$(SRC_DIR)/include $(SRC_DIR)/*.sv $(SIM_DIR)/*.sv
+with_hazard:
+	@mkdir -p $(BUILD_DIR)
+	$(AS) $(AS_FLAGS) -o $(BUILD_DIR)/program.elf $(TB_DIR)/with_hazard.s
+	$(OBJCOPY) -O binary $(BUILD_DIR)/program.elf $(BUILD_DIR)/program.bin
+	# Formats raw binary into 16 uppercase space-separated byte hex blocks per line
+	hexdump -v -e '16/1 "%02X " "\n"' $(BUILD_DIR)/program.bin > $(TB_DIR)/program.hex
+	@echo "Successfully compiled with_hazard.s -> sim/program.hex"
 
-# 3. Run Simulation (GUI Mode)
-sim: hex compile
-	@echo "Starting QuestaSim GUI..."
-	$(VSIM) -voptargs=+acc work.$(TOP_TB) -do "add wave -r /*; run -all"
+without_hazard:
+	@mkdir -p $(BUILD_DIR)
+	$(AS) $(AS_FLAGS) -o $(BUILD_DIR)/program.elf $(TB_DIR)/without_hazard.s
+	$(OBJCOPY) -O binary $(BUILD_DIR)/program.elf $(BUILD_DIR)/program.bin
+	# Formats raw binary into 16 uppercase space-separated byte hex blocks per line
+	hexdump -v -e '16/1 "%02X " "\n"' $(BUILD_DIR)/program.bin > $(TB_DIR)/program.hex
+	@echo "Successfully compiled without_hazard.s -> sim/program.hex"
 
-# 4. Clean up generated files
+# =================================================================================
+# Run Simulation
+# =================================================================================
+run:
+	@mkdir -p $(BUILD_DIR)
+	cp $(TB_DIR)/program.hex $(BUILD_DIR)/ 2>/dev/null || true
+	cd $(BUILD_DIR) && \
+	vlib work && \
+	$(VLOG) +incdir+../$(RTL_DIR) $(RTL_FILES) $(TB_FILES) && \
+	$(VSIM) -c $(TOP_TB) -do "run -all; quit"
+
+# =================================================================================
+# View Waveforms
+# =================================================================================
+wave:
+	cd $(BUILD_DIR) && \
+	$(GTKWAVE) dump.vcd wave.gtkw
+
+# =================================================================================
+# Clean Build Directory
+# =================================================================================
 clean:
-	@echo "Cleaning up build and simulation files..."
-	rm -rf $(WORK_DIR) transcript vsim.wlf modelsim.ini
-	rm -f $(ELF_BIN) $(HEX_OUT)
+	rm -rf $(BUILD_DIR)
+	rm -f $(TB_DIR)/program.hex
 
-# Help menu
-help:
-	@echo "Available commands:"
-	@echo "  make hex     - Compiles the RISC-V assembly into a .hex file"
-	@echo "  make compile - Compiles all .sv files in src/ and sim/ using QuestaSim"
-	@echo "  make sim     - Generates hex, compiles RTL, and opens QuestaSim GUI"
-	@echo "  make clean   - Removes all generated files and libraries"
+.PHONY: all run wave clean with_hazard without_hazard

@@ -245,6 +245,81 @@ module cep_tb();
         reset_cpu();
         check_result_rf(RD, 32'd500, "Custom CABS Test 2 (Negative)");
 
+        // Test Custom Insts --------------------------------------------------
+        // - BSWAP
+        
+        // Test 1: Standard asymmetrical sequence (0x12345678 -> 0x78563412)
+        reset();
+        RS1 = 5;
+        RD  = 6;
+        `REGFILE_PATH.Registers[RS1] = 32'h12345678; 
+        INST_ADDR = 14'h0000;
+
+        `IMEM_PATH.memory[INST_ADDR + 0] = {`FNC7_BSWAP, 5'd0, RS1, 3'b000, RD, `OPC_CUSTOM_0};
+
+        reset_cpu();
+        check_result_rf(RD, 32'h78563412, "Custom BSWAP Test 1 (Standard)");
+
+        // Test 2: Bottom byte to Top byte (0x000000FF -> 0xFF000000)
+        reset();
+        RS1 = 7;
+        RD  = 8;
+        `REGFILE_PATH.Registers[RS1] = 32'h000000FF; 
+        INST_ADDR = 14'h0000;
+
+        `IMEM_PATH.memory[INST_ADDR + 0] = {`FNC7_BSWAP, 5'd0, RS1, 3'b000, RD, `OPC_CUSTOM_0};
+
+        reset_cpu();
+        check_result_rf(RD, 32'hFF000000, "Custom BSWAP Test 2 (Shift Up)");
+
+        // Test 3: Top byte to Bottom byte (0xAB000000 -> 0x000000AB)
+        reset();
+        RS1 = 9;
+        RD  = 10;
+        `REGFILE_PATH.Registers[RS1] = 32'hAB000000; 
+        INST_ADDR = 14'h0000;
+
+        `IMEM_PATH.memory[INST_ADDR + 0] = {`FNC7_BSWAP, 5'd0, RS1, 3'b000, RD, `OPC_CUSTOM_0};
+
+        reset_cpu();
+        check_result_rf(RD, 32'h000000AB, "Custom BSWAP Test 3 (Shift Down)");
+
+        // Test 4: All Zeros (0x00000000 -> 0x00000000)
+        reset();
+        RS1 = 11;
+        RD  = 12;
+        `REGFILE_PATH.Registers[RS1] = 32'h00000000; 
+        INST_ADDR = 14'h0000;
+
+        `IMEM_PATH.memory[INST_ADDR + 0] = {`FNC7_BSWAP, 5'd0, RS1, 3'b000, RD, `OPC_CUSTOM_0};
+
+        reset_cpu();
+        check_result_rf(RD, 32'h00000000, "Custom BSWAP Test 4 (All Zeros)");
+
+        // Test 5: All Ones (0xFFFFFFFF -> 0xFFFFFFFF)
+        reset();
+        RS1 = 13;
+        RD  = 14;
+        `REGFILE_PATH.Registers[RS1] = 32'hFFFFFFFF; 
+        INST_ADDR = 14'h0000;
+
+        `IMEM_PATH.memory[INST_ADDR + 0] = {`FNC7_BSWAP, 5'd0, RS1, 3'b000, RD, `OPC_CUSTOM_0};
+
+        reset_cpu();
+        check_result_rf(RD, 32'hFFFFFFFF, "Custom BSWAP Test 5 (All Ones)");
+        
+        // Test 6: Alternating Patterns / Negative Sign Bit (0x80000001 -> 0x01000080)
+        reset();
+        RS1 = 15;
+        RD  = 16;
+        `REGFILE_PATH.Registers[RS1] = 32'h80000001; 
+        INST_ADDR = 14'h0000;
+
+        `IMEM_PATH.memory[INST_ADDR + 0] = {`FNC7_BSWAP, 5'd0, RS1, 3'b000, RD, `OPC_CUSTOM_0};
+
+        reset_cpu();
+        check_result_rf(RD, 32'h01000080, "Custom BSWAP Test 6 (Sign Bit)");
+
         all_tests_passed = 1'b1;
 
         repeat (100) @(posedge clk);
