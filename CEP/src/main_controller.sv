@@ -1,93 +1,68 @@
-// =================================================================================
-// Author: Maryam Hania
-// Main Controller Module 
-// =================================================================================
-
 `include "../include/opcode.vh"
 
 module main_controller (
     input  logic [6:0] opcode,
-    output logic [1:0] alu_op,
-    output logic       reg_write,  // High for R, I, LW, JAL, LUI
-    output logic       alu_src,    // 0 for Register, 1 for Immediate
-    output logic [1:0] result_src, // 00: ALU, 01: Mem, 10: PC+4 (JAL), 11: Imm (LUI)
-    output logic       mem_write,  // High for SW
-    output logic       branch,     // High for Branches
-    output logic       jump        // High for JAL
+    input  logic [2:0] func3,      // NEW: Needed to decode custom sub-types
+    output logic [2:0] alu_op,     // EXPANDED: 3 bits to prevent collisions
+    output logic       reg_write,
+    output logic       alu_src,    
+    output logic [2:0] result_src, 
+    output logic       mem_write,  
+    output logic       branch,     
+    output logic       jump,       
+    output logic       mem_bswap   // NEW: Signal to flip bytes before memory
 );
 
     always_comb begin
-        // Default values to prevent latches
+        // Default values
         reg_write  = 1'b0;
         alu_src    = 1'b0;
-        alu_op     = 2'b00;
+        alu_op     = 3'b000;
         result_src = 2'b00;
         mem_write  = 1'b0;
         branch     = 1'b0;
         jump       = 1'b0;
+        mem_bswap  = 1'b0;
 
         case (opcode)
-            // R-Type
             `OPC_ARI_RTYPE: begin
-                reg_write  = 1'b1;
-                alu_src    = 1'b0; // Use RS2
-                alu_op     = 2'b10;
-                result_src = 2'b00; // ALU Result
+                reg_write  = 1'b1; alu_src = 1'b0; result_src = 2'b00; alu_op = 3'b010;
             end
-
-            // I-Type
             `OPC_ARI_ITYPE: begin
-                reg_write  = 1'b1;
-                alu_src    = 1'b1; // Use Immediate
-                alu_op     = 2'b11;
-                result_src = 2'b00; // ALU Result
+                reg_write  = 1'b1; alu_src = 1'b1; result_src = 2'b00; alu_op = 3'b011;
             end
-
-            // Load Word (LW) 
             `OPC_LOAD: begin
-                reg_write  = 1'b1;
-                alu_src    = 1'b1; // Use immediate for address offset
-                alu_op     = 2'b00; // ALU does ADD
-                result_src = 2'b01; // Route memory data to register
+                reg_write  = 1'b1; alu_src = 1'b1; result_src = 2'b01; alu_op = 3'b000;
             end
-
-            // Store Word (SW) - S-Type
             `OPC_STORE: begin
-                reg_write  = 1'b0;
-                alu_src    = 1'b1; // Use immediate for address offset
-                alu_op     = 2'b00; // ALU does ADD
-                mem_write  = 1'b1; // Enable memory writing
+                alu_src    = 1'b1; mem_write  = 1'b1; alu_op = 3'b000;
             end
-
-            // Branches (BEQ, BNE) - B-Type
             `OPC_BRANCH: begin
-                reg_write  = 1'b0;
-                alu_src    = 1'b0; // Compare two registers
-                alu_op     = 2'b01; // ALU does SUB for comparison
-                branch     = 1'b1; // Signal PC to maybe jump
+                alu_src    = 1'b0; branch     = 1'b1; alu_op = 3'b001;
             end
-
-            // Jump and Link (JAL) - J-Type
             `OPC_JAL: begin
-                reg_write  = 1'b1; // Write return address to RD
-                jump       = 1'b1; // Force PC jump
-                result_src = 2'b10; // Route PC+4 to register
+                reg_write  = 1'b1; jump       = 1'b1; result_src = 2'b10;
             end
-
-            // Load Upper Immediate (LUI) - U-Type
             `OPC_LUI: begin
-                reg_write  = 1'b1; // Write immediate to RD
-                result_src = 2'b11; // Route immediate to register
+                reg_write  = 1'b1; result_src = 2'b11;
             end
 
-            // Custom Instructions
+            // --- THE NEW CUSTOM DECODE LOGIC ---
             `OPC_CUSTOM_0: begin
-                reg_write  = 1'b1;  // Write result to RD
-                result_src = 2'b00; // Route ALU result to register
-                alu_src    = 1'b0;  // Use Register (RS1)
-                alu_op     = 2'b10; // Treat as R-type for ALU decoding
+                if (func3 == 3'b000) begin 
+                    // Custom R-Type (BITREV, CABS, BSWAP)
+                    reg_write  = 1'b1; result_src = 2'b00; alu_src = 1'b0; alu_op = 3'b100;
+                end 
+                else if (func3 == 3'b001) begin 
+                    // Custom I-Type (MASKI)
+                    reg_write  = 1'b1; result_src = 2'b00; alu_src = 1'b1; alu_op = 3'b101;
+                end 
+                else if (func3 == 3'b010) begin 
+                    // Custom S-Type (SW.BSWAP)
+                    mem_write  = 1'b1; alu_src = 1'b1; alu_op = 3'b000; // ALU calculates Address
+                    mem_bswap  = 1'b1; // Trigger hardware to swap rs2
+                end
             end
-
             default: ;
         endcase
     end

@@ -11,17 +11,20 @@ module data_mem
     output logic [31:0] read_data
 );
 
-    logic [31:0] memory [1024] = '{default: '0};
+    // FIX 1: Expand array to 4096 words so Index 1024 and 2048 actually exist
+    logic [31:0] memory [4096] = '{default: '0};
 
     // Synchronous Write
     always_ff @(posedge clk) begin
         if (mem_write) begin
-            memory[addr[11:2]] <= write_data;
+            // FIX 2: Expand the address slice to 12 bits (13 down to 2) 
+            // so the CPU can actually reach those higher addresses!
+            memory[addr[13:2]] <= write_data;
         end
     end
 
     // Asynchronous Read
-    assign read_data = memory[addr[11:2]];
+    // FIX 2: Expand the address slice here as well
+    assign read_data = memory[addr[13:2]];
 
-    
 endmodule

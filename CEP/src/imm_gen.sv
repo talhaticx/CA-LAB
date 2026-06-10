@@ -6,7 +6,9 @@ module imm_gen (
 );
 
     logic [6:0] op;
+    logic [2:0] func3; // For custom instruction decoding
     assign op = instruction[6:0];
+    assign func3 = instruction[14:12]; // For custom instruction decoding
     
     always_comb begin
         case (op)
@@ -33,6 +35,17 @@ module imm_gen (
             // J-type (Jump and Link)
             `OPC_JAL: begin
                 immediate = {{11{instruction[31]}}, instruction[31], instruction[19:12], instruction[20], instruction[30:21], 1'b0};
+            end
+
+            `OPC_CUSTOM_0: begin
+                if (func3 == 3'b001) begin
+                    // MASKI (Custom I-Type): bits [31:20]
+                    immediate = {{20{instruction[31]}}, instruction[31:20]}; 
+                end
+                else if (func3 == 3'b010) begin
+                    // SW.BSWAP (Custom S-Type): bits [31:25] and [11:7]
+                    immediate = {{20{instruction[31]}}, instruction[31:25], instruction[11:7]};
+                end
             end
 
             default: immediate = 32'b0;

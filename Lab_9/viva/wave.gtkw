@@ -1,21 +1,21 @@
 [*]
 [*] GTKWave Analyzer v3.3.125 (w)1999-2025 BSI
-[*] Thu Jun  4 04:31:37 2026
+[*] Wed Jun 10 09:36:34 2026
 [*]
 [dumpfile] "/home/talha/University/Semester 6/CA LAB/Lab_9/viva/with_hazard.vcd"
-[dumpfile_mtime] "Thu Jun  4 04:21:40 2026"
+[dumpfile_mtime] "Tue Jun  9 11:09:43 2026"
 [dumpfile_size] 21476
 [savefile] "/home/talha/University/Semester 6/CA LAB/Lab_9/viva/wave.gtkw"
-[timestart] 6
-[size] 2262 1159
-[pos] -1 -1
-*-5.074152 88 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[timestart] 0
+[size] 2304 1296
+[pos] -24 -22
+*-5.074152 130 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] tb_pipelined.
 [treeopen] tb_pipelined.dut.
 [sst_width] 273
 [signals_width] 174
 [sst_expanded] 1
-[sst_vpaned_height] 730
+[sst_vpaned_height] 824
 @28
 tb_pipelined.dut.pc_unit.clk
 tb_pipelined.dut.pc_unit.en
@@ -24,6 +24,7 @@ tb_pipelined.dut.pc_unit.rst
 tb_pipelined.dut.pc_unit.pc_out[31:0]
 @22
 tb_pipelined.dut.pc_unit.pc_out[31:0]
+#{tb_pipelined.dut.i_mem.addr[31:0]} tb_pipelined.dut.i_mem.addr[31] tb_pipelined.dut.i_mem.addr[30] tb_pipelined.dut.i_mem.addr[29] tb_pipelined.dut.i_mem.addr[28] tb_pipelined.dut.i_mem.addr[27] tb_pipelined.dut.i_mem.addr[26] tb_pipelined.dut.i_mem.addr[25] tb_pipelined.dut.i_mem.addr[24] tb_pipelined.dut.i_mem.addr[23] tb_pipelined.dut.i_mem.addr[22] tb_pipelined.dut.i_mem.addr[21] tb_pipelined.dut.i_mem.addr[20] tb_pipelined.dut.i_mem.addr[19] tb_pipelined.dut.i_mem.addr[18] tb_pipelined.dut.i_mem.addr[17] tb_pipelined.dut.i_mem.addr[16] tb_pipelined.dut.i_mem.addr[15] tb_pipelined.dut.i_mem.addr[14] tb_pipelined.dut.i_mem.addr[13] tb_pipelined.dut.i_mem.addr[12] tb_pipelined.dut.i_mem.addr[11] tb_pipelined.dut.i_mem.addr[10] tb_pipelined.dut.i_mem.addr[9] tb_pipelined.dut.i_mem.addr[8] tb_pipelined.dut.i_mem.addr[7] tb_pipelined.dut.i_mem.addr[6] tb_pipelined.dut.i_mem.addr[5] tb_pipelined.dut.i_mem.addr[4] tb_pipelined.dut.i_mem.addr[3] tb_pipelined.dut.i_mem.addr[2] tb_pipelined.dut.i_mem.addr[1] tb_pipelined.dut.i_mem.addr[0]
 tb_pipelined.dut.i_mem.instr[31:0]
 @28
 tb_pipelined.dut.h_unit.forward_a_DX
@@ -36,5 +37,12 @@ tb_pipelined.dut.h_unit.flush_DX
 #{tb_pipelined.dut.alu_unit.operand_a[31:0]} tb_pipelined.dut.alu_unit.operand_a[31] tb_pipelined.dut.alu_unit.operand_a[30] tb_pipelined.dut.alu_unit.operand_a[29] tb_pipelined.dut.alu_unit.operand_a[28] tb_pipelined.dut.alu_unit.operand_a[27] tb_pipelined.dut.alu_unit.operand_a[26] tb_pipelined.dut.alu_unit.operand_a[25] tb_pipelined.dut.alu_unit.operand_a[24] tb_pipelined.dut.alu_unit.operand_a[23] tb_pipelined.dut.alu_unit.operand_a[22] tb_pipelined.dut.alu_unit.operand_a[21] tb_pipelined.dut.alu_unit.operand_a[20] tb_pipelined.dut.alu_unit.operand_a[19] tb_pipelined.dut.alu_unit.operand_a[18] tb_pipelined.dut.alu_unit.operand_a[17] tb_pipelined.dut.alu_unit.operand_a[16] tb_pipelined.dut.alu_unit.operand_a[15] tb_pipelined.dut.alu_unit.operand_a[14] tb_pipelined.dut.alu_unit.operand_a[13] tb_pipelined.dut.alu_unit.operand_a[12] tb_pipelined.dut.alu_unit.operand_a[11] tb_pipelined.dut.alu_unit.operand_a[10] tb_pipelined.dut.alu_unit.operand_a[9] tb_pipelined.dut.alu_unit.operand_a[8] tb_pipelined.dut.alu_unit.operand_a[7] tb_pipelined.dut.alu_unit.operand_a[6] tb_pipelined.dut.alu_unit.operand_a[5] tb_pipelined.dut.alu_unit.operand_a[4] tb_pipelined.dut.alu_unit.operand_a[3] tb_pipelined.dut.alu_unit.operand_a[2] tb_pipelined.dut.alu_unit.operand_a[1] tb_pipelined.dut.alu_unit.operand_a[0]
 #{tb_pipelined.dut.alu_unit.operand_b[31:0]} tb_pipelined.dut.alu_unit.operand_b[31] tb_pipelined.dut.alu_unit.operand_b[30] tb_pipelined.dut.alu_unit.operand_b[29] tb_pipelined.dut.alu_unit.operand_b[28] tb_pipelined.dut.alu_unit.operand_b[27] tb_pipelined.dut.alu_unit.operand_b[26] tb_pipelined.dut.alu_unit.operand_b[25] tb_pipelined.dut.alu_unit.operand_b[24] tb_pipelined.dut.alu_unit.operand_b[23] tb_pipelined.dut.alu_unit.operand_b[22] tb_pipelined.dut.alu_unit.operand_b[21] tb_pipelined.dut.alu_unit.operand_b[20] tb_pipelined.dut.alu_unit.operand_b[19] tb_pipelined.dut.alu_unit.operand_b[18] tb_pipelined.dut.alu_unit.operand_b[17] tb_pipelined.dut.alu_unit.operand_b[16] tb_pipelined.dut.alu_unit.operand_b[15] tb_pipelined.dut.alu_unit.operand_b[14] tb_pipelined.dut.alu_unit.operand_b[13] tb_pipelined.dut.alu_unit.operand_b[12] tb_pipelined.dut.alu_unit.operand_b[11] tb_pipelined.dut.alu_unit.operand_b[10] tb_pipelined.dut.alu_unit.operand_b[9] tb_pipelined.dut.alu_unit.operand_b[8] tb_pipelined.dut.alu_unit.operand_b[7] tb_pipelined.dut.alu_unit.operand_b[6] tb_pipelined.dut.alu_unit.operand_b[5] tb_pipelined.dut.alu_unit.operand_b[4] tb_pipelined.dut.alu_unit.operand_b[3] tb_pipelined.dut.alu_unit.operand_b[2] tb_pipelined.dut.alu_unit.operand_b[1] tb_pipelined.dut.alu_unit.operand_b[0]
 tb_pipelined.dut.alu_unit.result[31:0]
+@200
+-
+@22
+tb_pipelined.dut.pc_plus4_F[31:0]
+tb_pipelined.dut.pc_plus4_DX[31:0]
+@23
+tb_pipelined.dut.pc_plus4_MW[31:0]
 [pattern_trace] 1
 [pattern_trace] 0

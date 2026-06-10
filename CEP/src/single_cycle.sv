@@ -11,10 +11,12 @@ module single_cycle (
     logic [31:0] pc_out, pc_next, pc_plus4, pc_branch, instr, imm_ext;
     logic [31:0] rd1, rd2, alu_result, operand_b, read_data, wd3_final;
     logic [3:0]  alu_ctrl_signal;
-    logic [1:0]  alu_op_main, result_src;
+    logic [2:0]  alu_op_main, result_src;
     logic        reg_write_en, alu_src_sel, alu_zero;
     logic        mem_write, branch, jump, pc_src, take_branch;
 
+    logic        mem_bswap;
+    logic [31:0] dmem_write_data;
     // 1. Program Counter
     pc pc_unit (
         .clk(clk), .rst(rst),
@@ -46,13 +48,15 @@ module single_cycle (
     // 4. Main Controller
     main_controller m_ctrl (
         .opcode(instr[6:0]),
+        .func3(instr[14:12]), // Pass func3 for custom instruction decoding
         .alu_op(alu_op_main),
         .reg_write(reg_write_en),
         .alu_src(alu_src_sel),
         .result_src(result_src), // 2-bit wire
         .mem_write(mem_write),
         .branch(branch),
-        .jump(jump)              // Added jump signal
+        .jump(jump),              // Added jump signal
+        .mem_bswap(mem_bswap)     // Added mem_bswap signal
     );
 
     // 5. Immediate Generator
@@ -93,12 +97,15 @@ module single_cycle (
         .zero(alu_zero)
     );
 
+
+    // If mem_bswap is high, flip the bytes of RD2. Otherwise, pass RD2 normally.
+    assign dmem_write_data = mem_bswap ? {rd2[7:0], rd2[15:8], rd2[23:16], rd2[31:24]} : rd2;
     // 10. Data Memory
     data_mem d_mem (
         .clk(clk),
         .mem_write(mem_write),
         .addr(alu_result),
-        .write_data(rd2),
+        .write_data(dmem_write_data), // Use the potentially byte-swapped data
         .read_data(read_data)
     );
 

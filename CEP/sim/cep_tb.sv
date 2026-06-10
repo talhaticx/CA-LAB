@@ -320,6 +320,104 @@ module cep_tb();
         reset_cpu();
         check_result_rf(RD, 32'h01000080, "Custom BSWAP Test 6 (Sign Bit)");
 
+        // Test Custom Insts --------------------------------------------------
+        // - MASKI (I-Type format: {imm[11:0], rs1, func3, rd, opcode})
+        
+        // Test 1: Mask bottom 8 bits (imm = 8)
+        // 0xABCD_EF99 -> 0x0000_0099
+        reset();
+        RS1 = 17;
+        RD  = 18;
+        IMM = 12'd8; 
+        `REGFILE_PATH.Registers[RS1] = 32'hABCDEF99;
+        INST_ADDR = 14'h0000;
+
+        `IMEM_PATH.memory[INST_ADDR + 0] = {IMM[11:0], RS1, 3'b001, RD, `OPC_CUSTOM_0};
+
+        reset_cpu();
+        check_result_rf(RD, 32'h00000099, "Custom MASKI Test 1 (8 bits)");
+
+        // Test 2: Mask bottom 4 bits (imm = 4)
+        // 0xFFFF_FFFF -> 0x0000_000F
+        reset();
+        RS1 = 19;
+        RD  = 20;
+        IMM = 12'd4;
+        `REGFILE_PATH.Registers[RS1] = 32'hFFFFFFFF;
+        INST_ADDR = 14'h0000;
+
+        `IMEM_PATH.memory[INST_ADDR + 0] = {IMM[11:0], RS1, 3'b001, RD, `OPC_CUSTOM_0};
+
+        reset_cpu();
+        check_result_rf(RD, 32'h0000000F, "Custom MASKI Test 2 (4 bits)");
+
+        // Test 3: Mask 0 bits (imm = 0)
+        // 0x1234_5678 -> 0x0000_0000
+        reset();
+        RS1 = 21;
+        RD  = 22;
+        IMM = 12'd0;
+        `REGFILE_PATH.Registers[RS1] = 32'h12345678;
+        INST_ADDR = 14'h0000;
+
+        `IMEM_PATH.memory[INST_ADDR + 0] = {IMM[11:0], RS1, 3'b001, RD, `OPC_CUSTOM_0};
+
+        reset_cpu();
+        check_result_rf(RD, 32'h00000000, "Custom MASKI Test 3 (0 bits)");
+
+
+        // Test Custom Insts --------------------------------------------------
+        // - SW.BSWAP (S-Type format: {imm[11:5], rs2, rs1, func3, imm[4:0], opcode})
+        
+        // Test 1: Store with Offset 0 
+        // Data = 0x11223344 -> Memory should hold 0x44332211
+        reset();
+        RS1 = 23; // Base Address register
+        RS2 = 24; // Data register
+        IMM = 12'd0; 
+        
+        // Test 1: Store with Offset 0 
+        reset();
+        RS1 = 23; 
+        RS2 = 24; 
+        IMM = 12'd0; 
+        
+        `REGFILE_PATH.Registers[RS1] = 32'd0;        // CHANGE: Base address = 0
+        `REGFILE_PATH.Registers[RS2] = 32'h11223344; 
+        DATA_ADDR = 0;                               // CHANGE: Address to check = 0
+        
+        INST_ADDR = 14'h0000;
+
+        `IMEM_PATH.memory[INST_ADDR + 0] = {IMM[11:5], RS2, RS1, 3'b010, IMM[4:0], `OPC_CUSTOM_0};
+
+        reset_cpu();
+        check_result_dmem(DATA_ADDR, 32'h44332211, "Custom SW.BSWAP Test 1 (Offset 0)");
+
+        // Test 2: Store with a non-zero immediate offset
+        // Base = 20, Offset = 8 -> Store at address 28
+        // Data = 0xAA0000BB -> Memory should hold 0xBB0000AA
+        reset();
+        RS1 = 25; 
+        RS2 = 26; 
+        IMM = 12'd8; // Offset of 8
+        
+        `REGFILE_PATH.Registers[RS1] = 32'd20;       // Base address = 20
+        `REGFILE_PATH.Registers[RS2] = 32'hAA0000BB; // Data to store
+        
+        // The physical byte address is 28 (20 + 8)
+        DATA_ADDR = 28;                              
+        
+        INST_ADDR = 14'h0000;
+
+        `IMEM_PATH.memory[INST_ADDR + 0] = {IMM[11:5], RS2, RS1, 3'b010, IMM[4:0], `OPC_CUSTOM_0};
+
+        reset_cpu();
+        
+        // $display("GHOST HUNT: Mem[5]=%h | Mem[7]=%h | Mem[28]=%h", 
+        //          `DMEM_PATH.memory[5], `DMEM_PATH.memory[7], `DMEM_PATH.memory[28]);
+
+        check_result_dmem((DATA_ADDR >> 2), 32'hBB0000AA, "Custom SW.BSWAP Test 2 (Offset 8)");
+
         all_tests_passed = 1'b1;
 
         repeat (100) @(posedge clk);

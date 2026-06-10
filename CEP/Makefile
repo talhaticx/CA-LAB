@@ -13,11 +13,11 @@ TB_DIR  = sim
 BUILD_DIR = build
 
 # Top module inside the testbench
-TOP_TB = cep_tb
+TOP_TB = testbench
 
 # Files (Referenced from inside the build directory)
 RTL_FILES = ../$(RTL_DIR)/*.sv
-TB_FILES  = ../$(TB_DIR)/cep_tb.sv
+TB_FILES  = ../$(TB_DIR)/testbench.sv
 
 # Default target
 all: run
